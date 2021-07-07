@@ -129,15 +129,18 @@ class MyApp extends StatelessWidget {
                                           Expanded(
                                             flex: 2,
                                             child: Container(
+                                              padding : EdgeInsets.all(5),
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width *
                                                   0.25,
                                               child: Column(
+                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
                                                   Text(
                                                     post.title,
                                                     style: TextStyle(
+                                                      
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: Colors.white),
@@ -145,6 +148,8 @@ class MyApp extends StatelessWidget {
                                                     Text(
                                                       
                                                     post.description,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 4,
                                                     style: TextStyle(
                                                       fontSize: 10,
                                                         
