@@ -1,21 +1,67 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:kiga_cinema/bloc/Cinema_bloc.dart';
-import 'package:kiga_cinema/model/Cinema.dart';
+import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
-import 'package:kiga_cinema/ui/details.dart';
 
-class Home extends StatefulWidget {
-  const Home({ Key? key }) : super(key: key);
+Future<List<Album>> fetchAlbum() async {
+  final response =
+      await http.get(Uri.parse("http://192.168.1.57:8000/api/get_cinema"));
 
-  @override
-  _HomeState createState() => _HomeState();
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    var responseJson = jsonDecode(response.body);
+    return (responseJson['cinema'] as List)
+        .map((p) => Album.fromJson(p))
+        .toList();
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
 }
 
-class _HomeState extends State<Home> {
+class Album {
+  final String id;
+  final String title;
+  final String country;
+  final String price;
+  final String on_air;
+  final String description;
+  final String thumb;
+
+  Album(
+      {required this.id,
+      required this.title,
+      required this.country,
+      required this.price,
+      required this.description,
+      required this.on_air,
+      required this.thumb});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    developer.inspect(json);
+    return Album(
+      id: json["id"].toString(),
+      title: json["title"],
+      country: json["country"],
+      price: json["price"],
+      on_air: json["on_air"],
+      description: json["description"],
+      thumb: json["thumb"],
+    );
+  }
+}
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-  
-
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Color.fromRGBO(31, 41, 55, 1),
@@ -128,11 +174,6 @@ class _HomeState extends State<Home> {
                                                     ),
                                                     onPressed: () {
                                                       developer.log('In Click');
-                                                      Navigator.push(context, new MaterialPageRoute(
-   builder: (context) => new Details(id:post.id))
- );
-
-
                                                     },
                                                     child: Text('Order'),
                                                   )
@@ -174,7 +215,54 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
- 
-
   }
 }
+
+
+// class MyApp extends StatefulWidget {
+//   MyApp({Key? key}) : super(key: key);
+
+//   @override
+//   _MyAppState createState() => _MyAppState();
+// }
+
+// class _MyAppState extends State<MyApp> {
+//   late Future<Album> futureAlbum;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     futureAlbum = fetchAlbum();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Fetch Data Example',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Fetch Data Example'),
+//         ),
+//         body: Center(
+//           child: FutureBuilder<Album>(
+//             future: futureAlbum,
+//             builder: (context, snapshot) {
+//               developer.inspect(snapshot);
+//               if (snapshot.hasData) {
+//                 return Text(snapshot.data!.title.toString());
+//               } else if (snapshot.hasError) {
+//                 return Text("${snapshot.error}");
+//               }
+
+//               // By default, show a loading spinner.
+//               return CircularProgressIndicator();
+//             },
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
